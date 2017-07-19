@@ -7,6 +7,8 @@ imports:
     - { resource: "@SyliusShopBundle/Resources/config/app/config.yml" }
     - { resource: "@SyliusAdminApiBundle/Resources/config/app/config.yml" }
 
+    - { resource: "@ShopApiPlugin/Resources/config/app/config.yml" }
+
     - { resource: "parameters.yml" }
     - { resource: "security.yml" }
 
@@ -59,5 +61,14 @@ fos_rest:
         empty_content: 204
     format_listener:
         rules:
+            - { path: '^/shop-api', priorities: ['json'], fallback_format: json, prefer_extension: true }
             - { path: '^/api', priorities: ['json', 'xml'], fallback_format: json, prefer_extension: true }
             - { path: '^/', stop: true }
+
+sylius_shop:
+    checkout_resolver:
+        pattern: "%sylius.security.shop_regex%/checkout/"
+
+shop_api:
+    included_attributes:
+        - "MUG_MATERIAL_CODE"

@@ -1,1 +1,14 @@
-services: ~
+services:
+    app.handler.authorize_payment_handler:
+        class: AppBundle\Handler\AuthorizeAdyenPaymentHandler
+        arguments:
+          - '@sylius.repository.order'
+          - %adyen.ws.application_name%
+          - %adyen.ws.username%
+          - %adyen.ws.password%
+        tags:
+            - { name: tactician.handler, command: AppBundle\Command\AuthorizeAdyenPayment }
+
+    app.controller.authorize_payment_action:
+        class: AppBundle\Controller\Checkout\AuthorizeAdyenPaymentAction
+        arguments: ['@fos_rest.view_handler', '@tactician.commandbus']

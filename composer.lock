@@ -4,8 +4,50 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "339468bd47dc4607b5bf22067b16c6d4",
+    "content-hash": "986e4aeb0053251375b752943743e1e8",
     "packages": [
+        {
+            "name": "adyen/php-api-library",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Adyen/adyen-php-api-library.git",
+                "reference": "78cadcbf3da9e0a0374327e98e3e0ab44a26cf24"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Adyen/adyen-php-api-library/zipball/78cadcbf3da9e0a0374327e98e3e0ab44a26cf24",
+                "reference": "78cadcbf3da9e0a0374327e98e3e0ab44a26cf24",
+                "shasum": ""
+            },
+            "require": {
+                "monolog/monolog": "~1.16",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Adyen\\": "src/Adyen/"
+                },
+                "classmap": [
+                    "src/Adyen/Service/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "A PHP client library for accessing Adyen APIs",
+            "homepage": "https://github.com/Adyen/adyen-php-api-library",
+            "keywords": [
+                "adyen"
+            ],
+            "time": "2016-11-25T08:14:32+00:00"
+        },
         {
             "name": "behat/transliterator",
             "version": "v1.2.0",

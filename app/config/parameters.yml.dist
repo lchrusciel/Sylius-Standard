@@ -11,3 +11,7 @@ parameters:
     mailer_password: ~
 
     secret: EDITME
+
+    adyen.ws.username: ~
+    adyen.ws.password: ~
+    adyen.ws.application_name: ~

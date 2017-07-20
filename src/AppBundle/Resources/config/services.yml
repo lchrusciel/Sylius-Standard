@@ -3,20 +3,27 @@ services:
         class: AppBundle\Handler\AuthorizeAdyenPaymentHandler
         arguments:
           - '@sylius.repository.order'
-          - %adyen.ws.application_name%
-          - %adyen.ws.username%
-          - %adyen.ws.password%
+          - '@app.adyen.client'
         tags:
             - { name: tactician.handler, command: AppBundle\Command\AuthorizeAdyenPayment }
+
     app.handler.capture_payment_handler:
         class: AppBundle\Handler\CaptureAdyenPaymentHandler
         arguments:
           - '@sylius.repository.order'
-          - %adyen.ws.application_name%
-          - %adyen.ws.username%
-          - %adyen.ws.password%
+          - '@app.adyen.client'
         tags:
             - { name: tactician.handler, command: AppBundle\Command\CaptureAdyenPayment }
+
+    app.adyen.config:
+        class: Adyen\Config
+        arguments:
+          - { merchantAccount: "%adyen.ws.merchant_account%", username: "%adyen.ws.username%", password: "%adyen.ws.password%" }
+
+    app.adyen.client:
+        class: Adyen\Client
+        arguments: ['@app.adyen.config']
+        calls: [['setEnvironment', ['%adyen.ws.environment%']]]
 
     app.controller.authorize_payment_action:
         class: AppBundle\Controller\Checkout\AuthorizeAdyenPaymentAction

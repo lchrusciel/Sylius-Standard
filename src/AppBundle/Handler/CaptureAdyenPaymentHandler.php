@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AppBundle\Handler;
 
-use AppBundle\Command\AuthorizeAdyenPayment;
+use Adyen\Client;
 use AppBundle\Command\CaptureAdyenPayment;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
@@ -15,28 +15,13 @@ final class CaptureAdyenPaymentHandler
     /** @var OrderRepositoryInterface */
     private $orderRepository;
 
-    /** @var string */
-    private $applicationName;
+    /** @var Client */
+    private $client;
 
-    /** @var string */
-    private $username;
-
-    /** @var string */
-    private $password;
-
-    /**
-     * AuthorizeAdyenPaymentHandler constructor.
-     * @param OrderRepositoryInterface $orderRepository
-     * @param string $applicationName
-     * @param string $username
-     * @param string $password
-     */
-    public function __construct(OrderRepositoryInterface $orderRepository, string $applicationName, string $username, string $password)
+    public function __construct(OrderRepositoryInterface $orderRepository, Client $client)
     {
         $this->orderRepository = $orderRepository;
-        $this->applicationName = $applicationName;
-        $this->username = $username;
-        $this->password = $password;
+        $this->client = $client;
     }
 
     public function handle(CaptureAdyenPayment $captureAdyenPayment)
@@ -56,13 +41,7 @@ final class CaptureAdyenPaymentHandler
             'merchantAccount' => 'SyliusORG',
         ];
 
-        $client = new \Adyen\Client();
-        $client->setApplicationName($this->applicationName);
-        $client->setUsername($this->username);
-        $client->setPassword($this->password);
-        $client->setEnvironment(\Adyen\Environment::TEST);
-
-        $service = new \Adyen\Service\Modification($client);
+        $service = new \Adyen\Service\Modification($this->client);
 
         $service->capture($adyenData);
     }

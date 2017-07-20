@@ -14,4 +14,5 @@ parameters:
 
     adyen.ws.username: ~
     adyen.ws.password: ~
-    adyen.ws.application_name: ~
+    adyen.ws.environment: test
+    adyen.ws.merchant_account: ~

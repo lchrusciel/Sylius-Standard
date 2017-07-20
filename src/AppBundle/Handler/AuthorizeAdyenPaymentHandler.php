@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AppBundle\Handler;
 
+use Adyen\Client;
 use AppBundle\Command\AuthorizeAdyenPayment;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
@@ -14,28 +15,13 @@ final class AuthorizeAdyenPaymentHandler
     /** @var OrderRepositoryInterface */
     private $orderRepository;
 
-    /** @var string */
-    private $applicationName;
+    /** @var Client */
+    private $client;
 
-    /** @var string */
-    private $username;
-
-    /** @var string */
-    private $password;
-
-    /**
-     * AuthorizeAdyenPaymentHandler constructor.
-     * @param OrderRepositoryInterface $orderRepository
-     * @param string $applicationName
-     * @param string $username
-     * @param string $password
-     */
-    public function __construct(OrderRepositoryInterface $orderRepository, string $applicationName, string $username, string $password)
+    public function __construct(OrderRepositoryInterface $orderRepository, Client $client)
     {
         $this->orderRepository = $orderRepository;
-        $this->applicationName = $applicationName;
-        $this->username = $username;
-        $this->password = $password;
+        $this->client = $client;
     }
 
     public function handle(AuthorizeAdyenPayment $authorizeAdyenPayment)
@@ -54,17 +40,10 @@ final class AuthorizeAdyenPaymentHandler
                 'value' => $payment->getAmount(),
                 'currency' => $payment->getCurrencyCode(),
             ],
-            'reference' => 'Test payment',
-            'merchantAccount' => 'SyliusORG',
+            'reference' => 'Payment for order with id ' . $order->getId(),
         ];
 
-        $client = new \Adyen\Client();
-        $client->setApplicationName($this->applicationName);
-        $client->setUsername($this->username);
-        $client->setPassword($this->password);
-        $client->setEnvironment(\Adyen\Environment::TEST);
-
-        $service = new \Adyen\Service\Payment($client);
+        $service = new \Adyen\Service\Payment($this->client);
 
         $payment->setDetails($service->authorise($adyenData));
     }

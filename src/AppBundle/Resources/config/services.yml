@@ -8,6 +8,15 @@ services:
           - %adyen.ws.password%
         tags:
             - { name: tactician.handler, command: AppBundle\Command\AuthorizeAdyenPayment }
+    app.handler.capture_payment_handler:
+        class: AppBundle\Handler\CaptureAdyenPaymentHandler
+        arguments:
+          - '@sylius.repository.order'
+          - %adyen.ws.application_name%
+          - %adyen.ws.username%
+          - %adyen.ws.password%
+        tags:
+            - { name: tactician.handler, command: AppBundle\Command\CaptureAdyenPayment }
 
     app.controller.authorize_payment_action:
         class: AppBundle\Controller\Checkout\AuthorizeAdyenPaymentAction

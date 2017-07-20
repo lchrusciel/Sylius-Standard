@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppBundle\Controller\Checkout;
 
 use AppBundle\Command\AuthorizeAdyenPayment;
+use AppBundle\Command\CaptureAdyenPayment;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandlerInterface;
 use League\Tactician\CommandBus;
@@ -32,6 +33,10 @@ final class AuthorizeAdyenPaymentAction extends Controller
             $request->attributes->get('token'),
             $request->attributes->get('paymentId'),
             $request->request->get('creditCard')
+        ));
+        $this->bus->handle(new CaptureAdyenPayment(
+            $request->attributes->get('token'),
+            $request->attributes->get('paymentId')
         ));
 
         return $this->viewHandler->handle(View::create(null, Response::HTTP_CREATED));

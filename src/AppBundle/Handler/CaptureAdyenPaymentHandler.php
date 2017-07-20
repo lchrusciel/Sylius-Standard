@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppBundle\Handler;
 
 use AppBundle\Command\AuthorizeAdyenPayment;
+use AppBundle\Command\CaptureAdyenPayment;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
@@ -38,13 +39,13 @@ final class CaptureAdyenPaymentHandler
         $this->password = $password;
     }
 
-    public function handle(AuthorizeAdyenPayment $authorizeAdyenPayment)
+    public function handle(CaptureAdyenPayment $captureAdyenPayment)
     {
         /** @var OrderInterface $order */
-        $order = $this->orderRepository->findOneBy(['tokenValue' => $authorizeAdyenPayment->token()]);
+        $order = $this->orderRepository->findOneBy(['tokenValue' => $captureAdyenPayment->token()]);
 
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->get($authorizeAdyenPayment->payment());
+        $payment = $order->getPayments()->get($captureAdyenPayment->payment());
 
         $adyenData = [
             'modificationAmount' => [
@@ -61,8 +62,8 @@ final class CaptureAdyenPaymentHandler
         $client->setPassword($this->password);
         $client->setEnvironment(\Adyen\Environment::TEST);
 
-        $service = new \Adyen\Service\Payment($client);
+        $service = new \Adyen\Service\Modification($client);
 
-        $payment->setDetails($service->authorise($adyenData));
+        $service->capture($adyenData);
     }
 }

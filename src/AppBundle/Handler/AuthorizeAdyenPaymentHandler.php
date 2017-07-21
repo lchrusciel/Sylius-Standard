@@ -18,6 +18,8 @@ use Webmozart\Assert\Assert;
 
 final class AuthorizeAdyenPaymentHandler
 {
+    const PAYMENT_CART = 'cart';
+
     /** @var OrderRepositoryInterface */
     private $orderRepository;
 
@@ -40,7 +42,7 @@ final class AuthorizeAdyenPaymentHandler
         $order = $this->orderRepository->findOneBy(['tokenValue' => $authorizeAdyenPayment->token()]);
 
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->get($authorizeAdyenPayment->payment());
+        $payment = $order->getLastPayment(self::PAYMENT_CART);
 
         $stateMachine = $this->stateMachineFactory->get($payment, SyliusPaymentTransitions::GRAPH);
 
@@ -58,7 +60,7 @@ final class AuthorizeAdyenPaymentHandler
             'reference' => 'Payment for order with id ' . $order->getId(),
         ];
 
-        Assert::true($stateMachine->can(UrbanaraPaymentTransitions::TRANSITION_AUTHORIZE), 'Payment cannot be authorized');
+        Assert::true($stateMachine->can(UrbanaraPaymentTransitions::TRANSITION_AUTHORIZE), 'Payment cannot be authorized.');
 
         $service = new Payment($this->client);
 

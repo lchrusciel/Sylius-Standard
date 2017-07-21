@@ -28,7 +28,7 @@ sylius_shop_api:
     resource: "@ShopApiPlugin/Resources/config/routing.yml"
 
 shop_api_pay_with_adyen:
-    path: /shop-api/checkout/{token}/payment/{paymentId}/pay
+    path: /shop-api/checkout/{token}/authorize
     methods: [POST]
     defaults:
         _controller: app.controller.authorize_payment_action

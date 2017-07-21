@@ -10,15 +10,11 @@ final class AuthorizeAdyenPayment
     private $token;
 
     /** @var string */
-    private $paymentId;
-
-    /** @var string */
     private $encryptedCreditCard;
 
-    public function __construct(string $token, string $paymentId, string $encryptedCreditCard)
+    public function __construct(string $token, string $encryptedCreditCard)
     {
         $this->token = $token;
-        $this->paymentId = $paymentId;
         $this->encryptedCreditCard = $encryptedCreditCard;
     }
 
@@ -26,12 +22,6 @@ final class AuthorizeAdyenPayment
     public function token(): string
     {
         return $this->token;
-    }
-
-    /** @return string */
-    public function payment(): string
-    {
-        return $this->paymentId;
     }
 
     /** @return string */

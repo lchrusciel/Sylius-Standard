@@ -31,7 +31,6 @@ final class AuthorizeAdyenPaymentAction extends Controller
     {
         $this->bus->handle(new AuthorizeAdyenPayment(
             $request->attributes->get('token'),
-            $request->attributes->get('paymentId'),
             $request->request->get('creditCard')
         ));
 

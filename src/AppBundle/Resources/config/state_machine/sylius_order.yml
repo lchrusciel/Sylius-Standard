@@ -1,0 +1,12 @@
+winzou_state_machine:
+    sylius_order:
+        class: "%sylius.model.order.class%"
+        property_path: state
+        graph: sylius_order
+        state_machine_class: "%sylius.state_machine.class%"
+        callbacks:
+            after:
+                sylius_capture_adyen_payment:
+                    on: ["create"]
+                    do: ["@app.listener.order_complete_adyen_capturer", "capture"]
+                    args: ["object"]

@@ -4,16 +4,23 @@ services:
         arguments:
           - '@sylius.repository.order'
           - '@app.adyen.client'
+          - '@sm.factory'
         tags:
             - { name: tactician.handler, command: AppBundle\Command\AuthorizeAdyenPayment }
 
     app.handler.capture_payment_handler:
         class: AppBundle\Handler\CaptureAdyenPaymentHandler
         arguments:
-          - '@sylius.repository.order'
+          - '@sylius.repository.payment'
           - '@app.adyen.client'
+          - '@sm.factory'
         tags:
             - { name: tactician.handler, command: AppBundle\Command\CaptureAdyenPayment }
+
+    app.listener.order_complete_adyen_capturer:
+        class: AppBundle\Listener\OrderCompleteAdyenCapturer
+        arguments:
+          - '@tactician.commandbus'
 
     app.adyen.config:
         class: Adyen\Config

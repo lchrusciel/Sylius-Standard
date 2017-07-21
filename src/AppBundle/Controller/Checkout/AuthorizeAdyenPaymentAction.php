@@ -34,10 +34,6 @@ final class AuthorizeAdyenPaymentAction extends Controller
             $request->attributes->get('paymentId'),
             $request->request->get('creditCard')
         ));
-        $this->bus->handle(new CaptureAdyenPayment(
-            $request->attributes->get('token'),
-            $request->attributes->get('paymentId')
-        ));
 
         return $this->viewHandler->handle(View::create(null, Response::HTTP_CREATED));
     }

@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace AppBundle\Handler;
 
+use Adyen\AdyenException;
+use AppBundle\Payment\PaymentTransitions as UrbanaraPaymentTransitions;
+use Sylius\Component\Payment\PaymentTransitions as SyliusPaymentTransitions;
 use Adyen\Client;
+use Adyen\Service\Payment;
 use AppBundle\Command\AuthorizeAdyenPayment;
+use SM\Factory\FactoryInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
+use Webmozart\Assert\Assert;
 
 final class AuthorizeAdyenPaymentHandler
 {
@@ -18,10 +24,14 @@ final class AuthorizeAdyenPaymentHandler
     /** @var Client */
     private $client;
 
-    public function __construct(OrderRepositoryInterface $orderRepository, Client $client)
+    /** @var FactoryInterface */
+    private $stateMachineFactory;
+
+    public function __construct(OrderRepositoryInterface $orderRepository, Client $client, FactoryInterface $stateMachineFactory)
     {
         $this->orderRepository = $orderRepository;
         $this->client = $client;
+        $this->stateMachineFactory = $stateMachineFactory;
     }
 
     public function handle(AuthorizeAdyenPayment $authorizeAdyenPayment)
@@ -31,6 +41,11 @@ final class AuthorizeAdyenPaymentHandler
 
         /** @var PaymentInterface $payment */
         $payment = $order->getPayments()->get($authorizeAdyenPayment->payment());
+
+        $stateMachine = $this->stateMachineFactory->get($payment, SyliusPaymentTransitions::GRAPH);
+
+        Assert::true($stateMachine->can(SyliusPaymentTransitions::TRANSITION_CREATE), 'Payment cannot be initialized.');
+        $stateMachine->apply(SyliusPaymentTransitions::TRANSITION_CREATE);
 
         $adyenData = [
             'additionalData' => [
@@ -43,8 +58,18 @@ final class AuthorizeAdyenPaymentHandler
             'reference' => 'Payment for order with id ' . $order->getId(),
         ];
 
-        $service = new \Adyen\Service\Payment($this->client);
+        Assert::true($stateMachine->can(UrbanaraPaymentTransitions::TRANSITION_AUTHORIZE), 'Payment cannot be authorized');
 
-        $payment->setDetails($service->authorise($adyenData));
+        $service = new Payment($this->client);
+
+        try {
+            $payment->setDetails($service->authorise($adyenData));
+
+            $stateMachine->apply(UrbanaraPaymentTransitions::TRANSITION_AUTHORIZE);
+        } catch (AdyenException $exception) {
+            $payment->setDetails(['exception' => $exception->getMessage()]);
+
+            $stateMachine->apply(SyliusPaymentTransitions::TRANSITION_FAIL);
+        }
     }
 }

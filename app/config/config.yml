@@ -9,6 +9,9 @@ imports:
 
     - { resource: "@ShopApiPlugin/Resources/config/app/config.yml" }
 
+    - { resource: "@AppBundle/Resources/config/state_machine/sylius_payment.yml" }
+    - { resource: "@AppBundle/Resources/config/state_machine/sylius_order.yml" }
+
     - { resource: "parameters.yml" }
     - { resource: "security.yml" }
 

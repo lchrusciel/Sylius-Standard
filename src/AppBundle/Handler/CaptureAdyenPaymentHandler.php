@@ -4,33 +4,39 @@ declare(strict_types=1);
 
 namespace AppBundle\Handler;
 
+use Adyen\AdyenException;
 use Adyen\Client;
 use AppBundle\Command\CaptureAdyenPayment;
-use Sylius\Component\Core\Model\OrderInterface;
+use SM\Factory\FactoryInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
-use Sylius\Component\Core\Repository\OrderRepositoryInterface;
+use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
+use Sylius\Component\Payment\PaymentTransitions;
+use Webmozart\Assert\Assert;
 
 final class CaptureAdyenPaymentHandler
 {
-    /** @var OrderRepositoryInterface */
-    private $orderRepository;
+    /** @var PaymentRepositoryInterface */
+    private $paymentRepository;
 
     /** @var Client */
     private $client;
 
-    public function __construct(OrderRepositoryInterface $orderRepository, Client $client)
+    /** @var FactoryInterface */
+    private $stateMachineFactory;
+
+    public function __construct(PaymentRepositoryInterface $paymentRepository, Client $client, FactoryInterface $stateMachineFactory)
     {
-        $this->orderRepository = $orderRepository;
+        $this->paymentRepository = $paymentRepository;
         $this->client = $client;
+        $this->stateMachineFactory = $stateMachineFactory;
     }
 
     public function handle(CaptureAdyenPayment $captureAdyenPayment)
     {
-        /** @var OrderInterface $order */
-        $order = $this->orderRepository->findOneBy(['tokenValue' => $captureAdyenPayment->token()]);
-
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->get($captureAdyenPayment->payment());
+        $payment = $this->paymentRepository->find($captureAdyenPayment->paymentId());
+
+        $stateMachine = $this->stateMachineFactory->get($payment, PaymentTransitions::GRAPH);
 
         $adyenData = [
             'modificationAmount' => [
@@ -41,8 +47,18 @@ final class CaptureAdyenPaymentHandler
             'merchantAccount' => 'SyliusORG',
         ];
 
+        Assert::true($stateMachine->can(PaymentTransitions::TRANSITION_COMPLETE), 'Payment cannot be captured.');
+
         $service = new \Adyen\Service\Modification($this->client);
 
-        $service->capture($adyenData);
+        try {
+            $payment->setDetails($service->capture($adyenData));
+
+            $stateMachine->apply(PaymentTransitions::TRANSITION_COMPLETE);
+        } catch (AdyenException $exception) {
+            $payment->setDetails(['exception' => $exception->getMessage()]);
+
+            $stateMachine->apply(PaymentTransitions::TRANSITION_FAIL);
+        }
     }
 }

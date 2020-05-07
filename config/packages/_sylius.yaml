@@ -5,6 +5,7 @@ imports:
     - { resource: "@SyliusAdminApiBundle/Resources/config/app/config.yml" }
 
     - { resource: "@SyliusShopBundle/Resources/config/app/config.yml" }
+    - { resource: "@SyliusApiBundle/Resources/config/app/config.yaml" }
 
 parameters:
     sylius_core.public_dir: '%kernel.project_dir%/public'
@@ -17,9 +18,9 @@ sylius_addressing:
         country:
             classes:
                 model: App\Entity\Addressing\Country
-        province:
-            classes:
-                model: App\Entity\Addressing\Province
+#        province:
+#            classes:
+#                model: App\Entity\Addressing\Province
         zone:
             classes:
                 model: App\Entity\Addressing\Zone
@@ -158,12 +159,12 @@ sylius_product:
             translation:
                 classes:
                     model: App\Entity\Product\ProductOptionTranslation
-        product_option_value:
-            classes:
-                model: App\Entity\Product\ProductOptionValue
-            translation:
-                classes:
-                    model: App\Entity\Product\ProductOptionValueTranslation
+#        product_option_value:
+#            classes:
+#                model: App\Entity\Product\ProductOptionValue
+#            translation:
+#                classes:
+#                    model: App\Entity\Product\ProductOptionValueTranslation
         product_association:
             classes:
                 model: App\Entity\Product\ProductAssociation

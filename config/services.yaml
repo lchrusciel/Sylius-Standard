@@ -28,3 +28,10 @@ services:
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+
+    twig.form.engine:
+        class: App\Twig\Form\TwigRendererEngine
+        arguments:
+            - '%twig.form.resources%'
+            - '@twig'
+        public: true

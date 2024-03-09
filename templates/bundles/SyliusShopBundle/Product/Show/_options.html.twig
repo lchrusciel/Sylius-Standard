@@ -1,0 +1,9 @@
+{% if form.cartItem.variantChoice is defined %}
+    {% for option_form in form.cartItem.variantChoice %}
+        {{ form_row(option_form, { 'attr': { 'data-option': option_form.vars.name } }) }}
+    {% endfor %}
+{%  else %}
+    {% for option_form in form.cartItem.variantMatch %}
+        {{ form_row(option_form, { 'attr': { 'data-option': option_form.vars.name } }) }}
+    {% endfor %}
+{% endif %}
